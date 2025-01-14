@@ -1,0 +1,12 @@
+
+
+<div class="container-form">
+  <div class="form">
+    <%= simple_form_for [@category, @bookmark] do |f| %>
+      Add New Recipe
+      <%= f.association :recipe  %>
+      <%= f.input :comment %>
+      <%= f.submit class: "btn btn-primary" %>
+    <% end %>
+  </div>
+</div>

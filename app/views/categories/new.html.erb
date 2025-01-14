@@ -1,0 +1,9 @@
+<div class="container-form">
+  <div class="form">
+    <%= simple_form_for @category do |f| %>
+    Add a new category
+    <%= f.input :name, placeholder: "The category name..." %>
+    <%= f.submit %>
+    <% end %>
+  </div>
+</div>

@@ -7,26 +7,45 @@
 #   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
+require "json"
+require "open-uri"
 
-
+categories = %w[Breakfast Pasta Seafood Dessert]
 
 puts "Cleaning database..."
 Bookmark.destroy_all
+Category.destroy_all
 Recipe.destroy_all
 
 puts "Creating recipes"
 
-Recipe.create!(name:"Chocolate cake", description:"Indulge yourself", image_url:"https://images.immediate.co.uk/production/volatile/sites/30/2020/08/recipe-image-legacy-id-1043451_11-4713959.jpg?quality=90&resize=440,400", rating: 4.1)
-puts "Created #{Recipe.count}"
-Recipe.create!(name: "Butter bean & chorizo stew", description:"A hearty stew to feed a family with just four ingredients", image_url:"https://images.immediate.co.uk/production/volatile/sites/30/2020/08/butter-bean-chorizo-stew-c630c75.jpg?quality=90&resize=440,400", rating: 4.6)
-puts "Created #{Recipe.count}"
-Recipe.create!(name: "Quick pizza dough", description:"Make our speedy pizza base", image_url: "https://images.immediate.co.uk/production/volatile/sites/30/2024/02/Quick-pizza-dough-afc956e.jpg?quality=90&resize=556,505", rating: 3.6)
-puts "Created #{Recipe.count}"
-Recipe.create!(name: "Air fryer meatballs", description:"Cook these sausage and beef meatballs in an air-fryer for ease", image_url: "https://images.immediate.co.uk/production/volatile/sites/30/2024/03/AIrFryerMeatballs-98bf24a.jpg?quality=90&resize=556,505", rating: 3.2)
-puts "Created #{Recipe.count}"
-Recipe.create!(name: "Creamy chicken pasta", description:"Try our crowd-pleasing creamy chicken pasta for your next family meal",image_url: "https://images.immediate.co.uk/production/volatile/sites/30/2022/01/creamy-chicken-pasta-086c722.jpg?quality=90&resize=556,505", rating: 2.8)
-puts "Created #{Recipe.count}"
-Recipe.create!(name: "New York cheesecake", description:"This authentic creamy dessert will add a taste of New York", image_url:"https://images.immediate.co.uk/production/volatile/sites/30/2020/08/recipe-image-legacy-id-1001487_11-f54704c.jpg?quality=90&resize=440,400", rating: 5)
-puts "Created #{Recipe.count}"
+def recipe_builder(id)
+  url = "https://www.themealdb.com/api/json/v1/1/lookup.php?i=#{id}"
+  id_serialized = URI.parse(url).read
+  id = JSON.parse(id_serialized)
+  name = id["meals"][0]["strMeal"]
+  description = id["meals"][0]["strCategory"]
+  recipe_url = id["meals"][0]["strMealThumb"]
+  rating = rand(0..5)
+  Recipe.create!(name: name, description: description, image_url: recipe_url, rating: rating)
+end
 
+def looper(categories)
+  categories.each do |category|
+    array = []
+    url = "https://www.themealdb.com/api/json/v1/1/filter.php?c=#{category}"
+    cat_serialized = URI.parse(url).read
+    cat = JSON.parse(cat_serialized)
+    meals = cat["meals"]
+    meals.each do |meal|
+      array << meal["idMeal"]
+    end
+    array.each do |id|
+      recipe_builder(id)
+    end
+  end
+end
+
+looper(categories)
+puts "Created #{Recipe.count}"
 puts "FINISHED"

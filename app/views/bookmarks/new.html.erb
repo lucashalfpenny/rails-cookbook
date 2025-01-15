@@ -4,8 +4,8 @@
   <div class="form">
     <%= simple_form_for [@category, @bookmark] do |f| %>
       Add New Recipe
-      <%= f.association :recipe  %>
-      <%= f.input :comment %>
+      <%= f.association :recipe, placeholder: "Pick a recipe..." %>
+      <%= f.input :comment, placeholder: "Comment..." %>
       <%= f.submit class: "btn btn-primary" %>
     <% end %>
   </div>
